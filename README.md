@@ -1,5 +1,7 @@
 # moonwalk: DLL Base Address Finder
 
+NOTE - This is the opsec branch which removes all print statements used in the PoC.
+
 This Rust library and CLI tool demonstrates an alternative method to find the base address of loaded DLLs without using a Process Environment Block (PEB) walk. This technique is particularly useful in scenarios where PEB walking might be detected or blocked.
 
 ## How It Works
