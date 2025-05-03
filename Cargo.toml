@@ -1,0 +1,16 @@
+[package]
+name = "moonwalk"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "moonwalk"
+path = "src/lib.rs"
+
+[[bin]]
+name = "moonwalk"
+path = "src/main.rs"
+
+[dependencies]
+winapi = { version = "0.3", features = ["winnt", "minwindef", "memoryapi", "errhandlingapi"] }
+# noldr = { git = "https://github.com/Teach2Breach/noldr.git", branch = "main" }
