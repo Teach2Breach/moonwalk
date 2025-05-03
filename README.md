@@ -95,7 +95,7 @@ cargo run --release USER32
 
 ## Example
 
-![Moonwalk DLL Base Address Finder Demo](2025-05-03_10-34.png)
+![Moonwalk DLL Base Address Finder Demo](opsec_branch.png)
 
 ## Notes
 
