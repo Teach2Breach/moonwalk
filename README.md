@@ -1,8 +1,8 @@
 # moonwalk: DLL Base Address Finder
 
-NOTE - This is the opsec branch which removes all print statements used in the PoC.
+This is the opsec branch which removes all API calls and print statements for better operational security.
 
-This Rust library and CLI tool demonstrates an alternative method to find the base address of loaded DLLs without using a Process Environment Block (PEB) walk. This technique is particularly useful in scenarios where PEB walking might be detected or blocked.
+This Rust library and CLI tool demonstrates an alternative method to find the base address of loaded DLLs without using a Process Environment Block (PEB) walk or any Windows API calls. This technique is particularly useful in scenarios where API calls might be detected or blocked.
 
 ## How It Works
 
@@ -11,12 +11,13 @@ The program uses a stack walking approach to locate DLLs by:
 1. **Accessing the Thread Environment Block (TEB)**:
    - Uses inline assembly to read the TEB pointer from the GS segment register (GS:[0x30])
    - Retrieves the stack base (GS:[0x08]) and stack limit (GS:[0x10]) from the TEB
+   - No API calls required
 
 2. **Stack Walking**:
    - Starts from the current stack pointer (RSP)
    - Walks up the stack looking for return addresses
-   - Checks each address for executable memory
-   - Uses VirtualQuery to validate memory regions
+   - Uses direct memory reads with exception handling instead of VirtualQuery
+   - Validates memory access through try/catch blocks
 
 3. **Module Identification**:
    - For each potential return address, checks if it points to executable memory
@@ -27,10 +28,13 @@ The program uses a stack walking approach to locate DLLs by:
      - DLL characteristics
      - 64-bit architecture
      - Module name from export directory
+   - All validation done through direct memory reads with exception handling
 
-4. **Validation**:
-   - Verifies the module is the target DLL by checking its name in the export directory
-   - Confirms all PE header structures are valid
+4. **Memory Access**:
+   - Uses direct memory reads instead of VirtualQuery
+   - Handles access violations through exception handling
+   - No Windows API calls until after DLL base is found
+   - More stealthy than API-based approaches
 
 ## Why This Approach?
 
@@ -41,12 +45,15 @@ Traditional methods of finding DLLs often involve walking the PEB's module list.
 This stack walking method provides an alternative that:
 - Doesn't rely on the PEB
 - Can work in environments where PEB walking is blocked
+- Makes no API calls until after finding the DLL
+- Uses direct memory access with exception handling
+- Can work in environments where API calls are monitored
+- Leaves fewer traces in userland
 
 ## Requirements
 
 - Rust (nightly toolchain)
 - Windows x64
-- `winapi` crate
 
 ## Usage
 
@@ -55,7 +62,7 @@ This stack walking method provides an alternative that:
 Add to your `Cargo.toml`:
 ```toml
 [dependencies]
-moonwalk = { git = "https://github.com/Teach2Breach/moonwalk.git" }
+moonwalk = { git = "https://github.com/Teach2Breach/moonwalk.git", branch = "opsec" }
 ```
 
 Example usage in your code:
@@ -99,7 +106,8 @@ cargo run --release USER32
 
 ## Notes
 
-- All memory access is validated using `VirtualQuery` for safety, if you don't want to make any API calls before getting the DLL base address there are other ways. VirtualQuery is used for simplicity in this PoC
+- No Windows API calls are made until after finding the DLL base
+- Memory access is validated through exception handling
 - DLL names are case-insensitive and the .dll extension is optional
 - Works best with DLLs that are commonly used in the call stack
-- This Proof of Concept library contains print statements which are helpful for understanding what is happening and debugging. In some scenarios, print statements like this are undesirable and should be removed. The OPSEC branch removes all print statements and just returns the address.
+- This branch removes all print statements and API calls (virtualquery) for better operational security
