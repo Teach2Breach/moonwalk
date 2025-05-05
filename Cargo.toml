@@ -12,5 +12,4 @@ name = "moonwalk"
 path = "src/main.rs"
 
 [dependencies]
-winapi = { version = "0.3", features = ["winnt", "minwindef", "memoryapi", "errhandlingapi"] }
-# noldr = { git = "https://github.com/Teach2Breach/noldr.git", branch = "main" }
+# winapi = { version = "0.3", features = ["winnt", "minwindef", "memoryapi", "errhandlingapi"] }
