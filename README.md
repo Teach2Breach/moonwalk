@@ -1,6 +1,6 @@
 # moonwalk: DLL Base Address Finder
 
-NOTE - opsec branch has print statements removed. highly recommended if you use this as a library in your own tool or implant
+NOTE - opsec branch has has no dependencies, does not use winapi or VirtualQuery. It also has no print statements and just returns the address. highly recommended if you use this as a library in your own tool or implant
 
 This Rust library and CLI tool demonstrates an alternative method to find the base address of loaded DLLs without using a Process Environment Block (PEB) walk. This technique is particularly useful in scenarios where PEB walking might be detected or blocked.
 
@@ -101,5 +101,5 @@ cargo run --release USER32
 
 - All memory access is validated using `VirtualQuery` for safety, if you don't want to make any API calls before getting the DLL base address there are other ways. VirtualQuery is used for simplicity in this PoC
 - DLL names are case-insensitive and the .dll extension is optional
-- Works best with DLLs that are commonly used in the call stack
-- This Proof of Concept library contains print statements which are helpful for understanding what is happening and debugging. In some scenarios, print statements like this are undesirable and should be removed. The OPSEC branch removes all print statements and just returns the address.
+- Only works with dlls that are in the call stack.
+- This Proof of Concept library contains print statements which are helpful for understanding what is happening and debugging. In some scenarios, print statements like this are undesirable and should be removed. The OPSEC branch removes all print statements, removes winapi crate, and does not use VirtualQuery at all. 
