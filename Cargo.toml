@@ -15,7 +15,7 @@ path = "src/main.rs"
 # winapi = { version = "0.3", features = ["winnt", "minwindef", "memoryapi", "errhandlingapi"] }
 
 [profile.release]
-strip = false  # Automatically strip symbols from the binary.
+strip = true  # Automatically strip symbols from the binary.
 opt-level = 0  # Optimize for reliability
 lto = false
 codegen-units = 1
