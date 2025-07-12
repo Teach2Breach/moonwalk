@@ -1,8 +1,25 @@
 # moonwalk: DLL Base Address Finder
 
-NOTE - opsec branch has has no dependencies, does not use winapi or VirtualQuery. It also has no print statements and just returns the address. highly recommended if you use this as a library in your own tool or implant
-
 This Rust library and CLI tool demonstrates an alternative method to find the base address of loaded DLLs without using a Process Environment Block (PEB) walk. This technique is particularly useful in scenarios where PEB walking might be detected or blocked.
+
+## Branch Differences
+
+This repository contains two branches with different approaches:
+
+### Main Branch
+- Uses `winapi` crate and `VirtualQuery` for memory validation
+- Library functions (`lib.rs`) have no print statements for clean integration
+- CLI tool (`main.rs`) includes debug output for proof of concept
+- Good for learning and understanding the technique
+
+### OPSEC Branch
+- **No external dependencies** - completely self-contained
+- **No Windows API calls** - uses direct memory access with exception handling instead of `VirtualQuery`
+- **No print statements** in library functions
+- **Enhanced stealth** - makes no API calls
+- **Better for implants/tools** - leaves fewer traces and is harder to detect
+
+Both branches are safe to use, but the OPSEC branch provides additional operational security benefits for scenarios where API calls might be monitored or blocked.
 
 ## How It Works
 
@@ -16,7 +33,8 @@ The program uses a stack walking approach to locate DLLs by:
    - Starts from the current stack pointer (RSP)
    - Walks up the stack looking for return addresses
    - Checks each address for executable memory
-   - Uses VirtualQuery to validate memory regions
+   - **Main branch**: Uses `VirtualQuery` to validate memory regions
+   - **OPSEC branch**: Uses direct memory access with exception handling
 
 3. **Module Identification**:
    - For each potential return address, checks if it points to executable memory
@@ -41,21 +59,31 @@ Traditional methods of finding DLLs often involve walking the PEB's module list.
 This stack walking method provides an alternative that:
 - Doesn't rely on the PEB
 - Can work in environments where PEB walking is blocked
+- **OPSEC branch**: Makes no API calls
 
 ## Requirements
 
 - Rust (nightly toolchain)
 - Windows x64
-- `winapi` crate
+- **Main branch**: `winapi` crate
+- **OPSEC branch**: No external dependencies
 
 ## Usage
 
 ### As a Library
 
 Add to your `Cargo.toml`:
+
+**Main branch:**
 ```toml
 [dependencies]
 moonwalk = { git = "https://github.com/Teach2Breach/moonwalk.git" }
+```
+
+**OPSEC branch:**
+```toml
+[dependencies]
+moonwalk = { git = "https://github.com/Teach2Breach/moonwalk.git", branch = "opsec" }
 ```
 
 Example usage in your code:
@@ -95,11 +123,14 @@ cargo run --release USER32
 
 ## Example
 
+Print statements are no longer included. This image is included for educational purposes. 
+
 ![Moonwalk DLL Base Address Finder Demo](2025-05-03_10-34.png)
 
 ## Notes
 
-- All memory access is validated using `VirtualQuery` for safety, if you don't want to make any API calls before getting the DLL base address there are other ways. VirtualQuery is used for simplicity in this PoC
 - DLL names are case-insensitive and the .dll extension is optional
-- Only works with dlls that are in the call stack.
-- This Proof of Concept library contains print statements which are helpful for understanding what is happening and debugging. In some scenarios, print statements like this are undesirable and should be removed. The OPSEC branch removes all print statements, removes winapi crate, and does not use VirtualQuery at all. 
+- Only works with DLLs that are in the call stack
+- **Main branch**: Uses `VirtualQuery` for safe memory access validation
+- **OPSEC branch**: Uses direct memory access with exception handling for maximum stealth
+- Both branches have clean library interfaces with no debug output
