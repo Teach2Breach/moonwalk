@@ -55,6 +55,34 @@ This stack walking method provides an alternative that:
 - Rust (nightly toolchain)
 - Windows x64
 
+## Important: Release Build Configuration
+
+**When using this library in release builds, specific compiler settings are required to maintain stack walking reliability.**
+
+The stack walking technique relies on predictable stack frame layouts and return address patterns. Aggressive compiler optimizations in release mode can interfere with this approach by:
+- Removing or reordering stack frames
+- Inlining functions that would otherwise create return addresses
+- Optimizing away stack-based return address patterns
+
+### Required Release Build Settings
+
+Add these settings to your `Cargo.toml` when using moonwalk as a library:
+
+```toml
+[profile.release]
+opt-level = 0  # Disable optimizations for stack walking reliability
+lto = false    # Disable link-time optimization
+codegen-units = 1  # Single codegen unit for consistency
+```
+
+### Technical Rationale
+
+- **`opt-level = 0`**: Prevents aggressive optimizations that can remove stack frames
+- **`lto = false`**: Disables link-time optimization that can inline across modules
+- **`codegen-units = 1`**: Reduces optimization variations
+
+Without these settings, release builds may fail to find DLLs even when debug builds work correctly. Other build settings may work, more testing is needed. This only applies to the version on the opsec branch.
+
 ## Usage
 
 ### As a Library
@@ -63,6 +91,12 @@ Add to your `Cargo.toml`:
 ```toml
 [dependencies]
 moonwalk = { git = "https://github.com/Teach2Breach/moonwalk.git", branch = "opsec" }
+
+# Required for release builds
+[profile.release]
+opt-level = 0
+lto = false
+codegen-units = 1
 ```
 
 Example usage in your code:
@@ -111,3 +145,4 @@ cargo run --release USER32
 - DLL names are case-insensitive and the .dll extension is optional
 - Works best with DLLs that are commonly used in the call stack
 - This branch removes all print statements and API calls (virtualquery) for better operational security
+- **Release builds require specific compiler settings to maintain stack walking reliability**
