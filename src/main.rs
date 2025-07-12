@@ -6,4 +6,7 @@ fn main() {
     if let Some(base_address) = find_dll_base(&target_dll) {
         println!("{} base address: {:X}", target_dll, base_address);
     }
+    else {
+        println!("{} not found", target_dll);
+    }
 }
