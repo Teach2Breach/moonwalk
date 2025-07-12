@@ -13,3 +13,10 @@ path = "src/main.rs"
 
 [dependencies]
 # winapi = { version = "0.3", features = ["winnt", "minwindef", "memoryapi", "errhandlingapi"] }
+
+[profile.release]
+strip = false  # Automatically strip symbols from the binary.
+opt-level = 0  # Optimize for reliability
+lto = false
+codegen-units = 1
+panic = "abort"
