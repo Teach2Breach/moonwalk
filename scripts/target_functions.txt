@@ -1,0 +1,8 @@
+NtCreateFile
+NtQuerySystemTime
+NtOpenFile
+NtClose
+NtAllocateVirtualMemory
+NtFreeVirtualMemory
+NtProtectVirtualMemory
+NtCreateThreadEx 

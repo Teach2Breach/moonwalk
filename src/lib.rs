@@ -9,6 +9,10 @@ use std::cell::Cell;
 use std::mem;
 use std::ptr;
 use std::panic::UnwindSafe;
+use std::collections::HashMap;
+
+// Include the signature scanner module
+pub mod signature_scanner;
 
 thread_local! {
     static STACK_BASE: Cell<u64> = Cell::new(0);
@@ -39,6 +43,22 @@ const SKIP_REGIONS: &[(u64, u64)] = &[
     (0x00000000000F0000, 0x00000000000FFFFF),  // Fifteenth 64KB
     (0x0000000000100000, 0x000000000010FFFF),  // Sixteenth 64KB
 ];
+
+// Syscall function information
+#[derive(Debug, Clone)]
+pub struct FunctionInfo {
+    pub name: String,
+    pub address: usize,
+    pub syscall_number: u32,
+    pub validation_status: ValidationStatus,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ValidationStatus {
+    Validated,
+    Unvalidated,
+    Failed(String),
+}
 
 // PE header structures
 #[repr(C)]
@@ -128,7 +148,7 @@ struct IMAGE_NT_HEADERS64 {
 }
 
 // Safe wrapper for reading memory that catches access violations
-unsafe fn safe_read<T: Copy>(ptr: *const T) -> Option<T> {
+pub unsafe fn safe_read<T: Copy>(ptr: *const T) -> Option<T> {
     Some(unsafe { ptr::read(ptr) })
 }
 
