@@ -131,7 +131,7 @@ Without these settings, release builds may fail to find DLLs even when debug bui
 Add to your `Cargo.toml`:
 ```toml
 [dependencies]
-moonwalk = { git = "https://github.com/Teach2Breach/moonwalk.git", branch = "opsec" }
+moonwalk = { git = "https://github.com/Teach2Breach/moonwalk.git", branch = "opsec-dev" }
 
 # Required for release builds
 [profile.release]
@@ -172,8 +172,16 @@ cargo run --release KeRNEl32
 cargo run --release USER32
 
 # Find specific functions in a DLL
-cargo run --release ntdll.dll NtCreateFile NtQuerySystemTime
-cargo run --release kernel32.dll Sleep GetTickCount
+cargo run --release ntdll NtCreateFile NtQuerySystemTime NtFake
+```
+
+**Example Output:**
+```
+     Running `target\debug\moonwalk.exe ntdll NtCreateFile NtQuerySystemTime NtFake`
+ntdll base address: 0x7FFF15DA0000
+✓ Found NtCreateFile at 0x7FFF15F0286C
+✓ Found NtQuerySystemTime at 0x7FFF15F0290C
+✗ Could not find NtFake
 ```
 
 ## Signature Management
@@ -208,7 +216,11 @@ Only functions listed in this file will be added to the hardcoded signature "dat
 
 ## Example
 
-![Moonwalk DLL Base Address Finder Demo](opsec_branch.png)
+The tool can locate both existing and non-existent functions, showing clear success/failure indicators:
+
+- ✓ Found functions show their memory addresses
+- ✗ Missing functions are clearly marked as not found
+- Base address is always displayed when the DLL is found
 
 ## Notes
 
